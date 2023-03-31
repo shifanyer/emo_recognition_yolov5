@@ -37,11 +37,16 @@ from pathlib import Path
 import torch
 import torch.nn.functional as F
 
-FILE = Path(__file__).resolve()
-ROOT = FILE.parents[1]  # YOLOv5 root directory
-if str(ROOT) not in sys.path:
-    sys.path.append(str(ROOT))  # add ROOT to PATH
-ROOT = Path(os.path.relpath(ROOT, Path.cwd()))  # relative
+
+def get_root():
+    FILE = Path(__file__).resolve()
+    ROOT = FILE.parents[1]  # YOLOv5 root directory
+    if str(ROOT) not in sys.path:
+        sys.path.append(str(ROOT))  # add ROOT to PATH
+    return Path(os.path.relpath(ROOT, Path.cwd()))  # relative
+
+
+ROOT = get_root()
 
 from models.common import DetectMultiBackend
 from utils.augmentations import classify_transforms
@@ -132,7 +137,8 @@ def run(
 
             p = Path(p)  # to Path
             save_path = str(save_dir / p.name)  # im.jpg
-            txt_path = str(save_dir / 'labels' / p.stem) + ('' if dataset.mode == 'image' else f'_{frame}')  # im.txt
+            txt_path = str(save_dir / 'labels' / p.stem)
+            # + ('' if dataset.mode == 'image' else f'_{frame}')  # im.txt
 
             s += '%gx%g ' % im.shape[2:]  # print string
             annotator = Annotator(im0, example=str(names), pil=True)
@@ -141,8 +147,10 @@ def run(
             top5i = prob.argsort(0, descending=True)[:5].tolist()  # top 5 indices
             s += f"{', '.join(f'{names[j]} {prob[j]:.2f}' for j in top5i)}, "
 
+            text_prestring = '' if dataset.mode == 'image' else (str(frame) + ";")
+
             # Write results
-            text = '\n'.join(f'{prob[j]:.2f} {names[j]}' for j in top5i)
+            text = text_prestring + ';'.join(f'{prob[j]:.2f} {names[j]}' for j in top5i)
             if save_img or view_img:  # Add bbox to image
                 annotator.text((32, 32), text, txt_color=(255, 255, 255))
             if save_txt:  # Write to file
@@ -217,6 +225,11 @@ def parse_opt():
 
 
 def main(opt):
+    check_requirements(exclude=('tensorboard', 'thop'))
+    run(**vars(opt))
+
+
+def custom_main(opt):
     check_requirements(exclude=('tensorboard', 'thop'))
     run(**vars(opt))
 
