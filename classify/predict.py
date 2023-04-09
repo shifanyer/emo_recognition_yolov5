@@ -33,9 +33,15 @@ import os
 import platform
 import sys
 from pathlib import Path
+import matplotlib.pyplot as plt
+import numpy as np
+import matplotlib
 
 import torch
 import torch.nn.functional as F
+
+
+# from diplom_wrapper.plot_draw import BarPlotClass
 
 
 def get_root():
@@ -96,6 +102,26 @@ def run(
     stride, names, pt = model.stride, model.names, model.pt
     imgsz = check_img_size(imgsz, s=stride)  # check image size
 
+    # Create plots
+    matplotlib.use("TkAgg")
+
+    def show_result(result_list, prob):
+        data_array = prob.tolist()
+        y = np.array(data_array)
+        for rect, h in zip(barPlot, y):
+            rect.set_height(h)
+        fig.canvas.draw()
+        fig.canvas.flush_events()
+
+    plt.ion()
+    fig, ax = plt.subplots()
+    x = 0.5 + np.arange(len(names))
+    y = np.random.uniform(0, 1, len(names))
+    width = 1
+    barPlot = ax.bar(x, y, width=width, edgecolor="white", linewidth=0.7)
+    ax.set_xticks(np.add(x, 0))
+    ax.set_xticklabels(names.values())
+
     # Dataloader
     bs = 1  # batch_size
     if webcam:
@@ -145,6 +171,7 @@ def run(
 
             # Print results
             top5i = prob.argsort(0, descending=True)[:5].tolist()  # top 5 indices
+            show_result(prob.argsort(0, descending=True).tolist(), prob)
             s += f"{', '.join(f'{names[j]} {prob[j]:.2f}' for j in top5i)}, "
 
             text_prestring = '' if dataset.mode == 'image' else (str(frame) + ";")
