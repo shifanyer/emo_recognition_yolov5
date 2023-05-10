@@ -6,7 +6,8 @@ ROOT = get_root()
 
 if __name__ == "__main__":
     weights = 'runs_new\exp51\weights\last.pt'
-    source = 'data/images/videoplayback.mp4'
+    # source = 'data/images/videoplayback.mp4'
+    source = 'data/images/video.mp4'
     parser = argparse.ArgumentParser()
     parser.add_argument('--weights', nargs='+', type=str, default=ROOT / weights, help='model path(s)')
     parser.add_argument('--source', type=str, default=ROOT / source, help='file/dir/URL/glob/screen/0(webcam)')

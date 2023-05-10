@@ -29,6 +29,7 @@ Usage - formats:
 """
 
 import argparse
+import math
 import os
 import platform
 import sys
@@ -94,6 +95,9 @@ def run(
     if is_url and is_file:
         source = check_file(source)  # download
 
+    def average_in_list(lst):
+        return sum(lst) / len(lst)
+
     # Directories
     save_dir = increment_path(Path(project) / name, exist_ok=exist_ok)  # increment run
     (save_dir / 'labels' if save_txt else save_dir).mkdir(parents=True, exist_ok=True)  # make dir
@@ -106,8 +110,11 @@ def run(
 
     # Create plots
     matplotlib.use("TkAgg")
-    linesDataY = []
-    linesDataX = []
+
+    linesDataY = [[0] * 100 for i in range (len(names))]
+    linesDirtyDataY = [[0] * 100 for i in range (len(names))]
+
+    linesDataX = [*range(-100, 0, 1)]
     sumTime = {names[i]: 1.0 for i in range(0, len(names), 1)}
 
     # Current time
@@ -135,27 +142,31 @@ def run(
     def lines_chart_upd(prob):
         frameTime = (timer.now() - start).total_seconds()
         data_array = prob.tolist()
-        if (len(linesDataX) > 0):
-            if (frameTime - linesDataX[-1]) > 1:
-                linesDataY.append(data_array[0])
-                linesDataX.append(frameTime)
-                linesPlotHappy.set_data(linesDataX, linesDataY)
-                # linesPlotHappy.set_xdata(np.array(linesDataX))
-                # linesPlotHappy.set_ydata(np.array(linesDataY))
+        if (frameTime - linesDataX[-1] >= 1):
+            linesDataX.append(math.trunc(frameTime))
+            for i in range(len(names)):
+                mean_value = average_in_list(linesDirtyDataY[i])
+                linesDataY[i].append(mean_value)
+                linesDirtyDataY[i] = [mean_value]
+
+                new_ls = linesDataY[i][-100:]
+                emotion_chart_list[i].set_ydata(new_ls)
+                emotion_chart_list[i].set_xdata(linesDataX[-100:])
         else:
-            linesDataY.append(data_array[0])
-            linesDataX.append(frameTime)
-        # lines_x = linesPlotHappy[0].get_xdata()
-        # lines_x = np.append(lines_x, frameTime)
-        # linesPlotHappy[0].set_ydata(lines_y)
-        # linesPlotHappy[0].set_xdata(lines_x)
+            for i in range(len(names)):
+                linesDirtyDataY[i].append(data_array[i])
 
     def update_plots():
         fig.canvas.draw()
         fig.canvas.flush_events()
 
     plt.ion()
-    fig, (axBar, axLines, axPie) = plt.subplots(3)
+
+    # create plots
+    fig, axs = plt.subplots(2)
+    axBar = axs[0]
+    axPie = axs[1]
+
     x = 0.5 + np.arange(len(names))
     y = np.random.uniform(0, 1, len(names))
     width = 1
@@ -163,7 +174,18 @@ def run(
     axBar.set_xticks(np.add(x, 0))
     axBar.set_xticklabels(names.values())
 
-    linesPlotHappy, = axLines.plot([], [], marker='o')
+    # lines chart create
+    fig2, axs2 = plt.subplots(len(names), sharex=True)
+    emotion_chart_list = []
+
+    for i in range(len(names)):
+        new_emotion_chart, = axs2[i].plot([0] * 100, linesDataX)
+        axs2[i].set_ylim(0, 1)
+        # axs2[i].set_xlim(0, 100)
+        # axs2[i].fill_between(range(-100, 100, 1), [0.5] * 100, [0] * 100)
+        emotion_chart_list.append(new_emotion_chart)
+
+    # linesPlotHappy.ylim(0, 1)
 
     pieValues = list(sumTime.values())
     pieKeys = list(sumTime.keys())
@@ -171,9 +193,27 @@ def run(
 
     def show_result(result_list, prob):
         show_result_bar_chart_emotions_realtime(result_list, prob)
-        # lines_chart_upd(prob)
+        lines_chart_upd(prob)
         pie_chart(prob)
         update_plots()
+
+    # fig2, ax2 = plt.subplots()
+    # xa = [3, 5, 8]
+    # ya = [9, 8, 4]
+    # ln, = ax2.plot(xa, ya, '-')
+    #
+    # def update(frame):
+    #     global xa, ya
+    #     xa.append(9)
+    #     ya.append(6)
+    #
+    #     ln.set_data(xa, ya)
+    #     fig2.gca().relim()
+    #     fig2.gca().autoscale_view()
+    #     return ln,
+    #
+    # animation = FuncAnimation(fig2, update, interval=2000)
+    # plt.show()
 
     # Dataloader
     bs = 1  # batch_size
