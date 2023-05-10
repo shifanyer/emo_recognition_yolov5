@@ -36,9 +36,11 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 import matplotlib
+import datetime
 
 import torch
 import torch.nn.functional as F
+from matplotlib.animation import FuncAnimation
 
 
 # from diplom_wrapper.plot_draw import BarPlotClass
@@ -104,23 +106,74 @@ def run(
 
     # Create plots
     matplotlib.use("TkAgg")
+    linesDataY = []
+    linesDataX = []
+    sumTime = {names[i]: 1.0 for i in range(0, len(names), 1)}
 
-    def show_result(result_list, prob):
+    # Current time
+    timer = datetime.datetime
+    start = timer.now()
+
+    def show_result_bar_chart_emotions_realtime(result_list, prob):
         data_array = prob.tolist()
-        y = np.array(data_array)
-        for rect, h in zip(barPlot, y):
+        bar_y = np.array(data_array)
+        for rect, h in zip(barPlot, bar_y):
             rect.set_height(h)
+
+    def pie_chart(prob):
+        dta_list = prob.tolist()
+        max_index = dta_list.index(max(dta_list))
+        max_name = names[max_index]
+        frameTime = (timer.now() - start).total_seconds()
+        sumTime[max_name] += frameTime
+        pieValues = list(sumTime.values())
+        pieKeys = list(sumTime.keys())
+        axPie.clear()
+        axPie.pie(np.array(pieValues), labels=pieKeys)
+        fig.canvas.draw_idle()
+
+    def lines_chart_upd(prob):
+        frameTime = (timer.now() - start).total_seconds()
+        data_array = prob.tolist()
+        if (len(linesDataX) > 0):
+            if (frameTime - linesDataX[-1]) > 1:
+                linesDataY.append(data_array[0])
+                linesDataX.append(frameTime)
+                linesPlotHappy.set_data(linesDataX, linesDataY)
+                # linesPlotHappy.set_xdata(np.array(linesDataX))
+                # linesPlotHappy.set_ydata(np.array(linesDataY))
+        else:
+            linesDataY.append(data_array[0])
+            linesDataX.append(frameTime)
+        # lines_x = linesPlotHappy[0].get_xdata()
+        # lines_x = np.append(lines_x, frameTime)
+        # linesPlotHappy[0].set_ydata(lines_y)
+        # linesPlotHappy[0].set_xdata(lines_x)
+
+    def update_plots():
         fig.canvas.draw()
         fig.canvas.flush_events()
 
     plt.ion()
-    fig, ax = plt.subplots()
+    fig, (axBar, axLines, axPie) = plt.subplots(3)
     x = 0.5 + np.arange(len(names))
     y = np.random.uniform(0, 1, len(names))
     width = 1
-    barPlot = ax.bar(x, y, width=width, edgecolor="white", linewidth=0.7)
-    ax.set_xticks(np.add(x, 0))
-    ax.set_xticklabels(names.values())
+    barPlot = axBar.bar(x, y, width=width, edgecolor="white", linewidth=0.7)
+    axBar.set_xticks(np.add(x, 0))
+    axBar.set_xticklabels(names.values())
+
+    linesPlotHappy, = axLines.plot([], [], marker='o')
+
+    pieValues = list(sumTime.values())
+    pieKeys = list(sumTime.keys())
+    axPie.pie(np.array(pieValues), labels=pieKeys)
+
+    def show_result(result_list, prob):
+        show_result_bar_chart_emotions_realtime(result_list, prob)
+        # lines_chart_upd(prob)
+        pie_chart(prob)
+        update_plots()
 
     # Dataloader
     bs = 1  # batch_size
