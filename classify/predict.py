@@ -111,10 +111,12 @@ def run(
     # Create plots
     matplotlib.use("TkAgg")
 
-    linesDataY = [[0] * 100 for i in range(len(names))]
-    linesDirtyDataY = [[0] * 100 for i in range(len(names))]
+    linesChartHistorySize = 1000
 
-    linesDataX = [*range(-100, 0, 1)]
+    linesDataY = [[0] * linesChartHistorySize for i in range(len(names))]
+    linesDirtyDataY = [[0] * linesChartHistorySize for i in range(len(names))]
+
+    linesDataX = [*range(-linesChartHistorySize, 0, 1)]
     sumTime = {names[i]: 1.0 for i in range(0, len(names), 1)}
 
     # Current time
@@ -149,9 +151,9 @@ def run(
                 linesDataY[i].append(mean_value)
                 linesDirtyDataY[i] = [mean_value]
                 axs2[i].set_yticklabels([math.trunc(mean_value * 100)])
-                new_ls = linesDataY[i][-100:]
+                new_ls = linesDataY[i][-linesChartHistorySize:]
                 emotion_chart_list[i].set_ydata(new_ls)
-                emotion_chart_list[i].set_xdata(linesDataX[-100:])
+                emotion_chart_list[i].set_xdata(linesDataX[-linesChartHistorySize:])
         else:
             for i in range(len(names)):
                 linesDirtyDataY[i].append(data_array[i])
@@ -180,13 +182,11 @@ def run(
 
     fig2.tight_layout()
     for i in range(len(names)):
-        new_emotion_chart, = axs2[i].plot([0] * 100, linesDataX)
+        new_emotion_chart, = axs2[i].plot([0] * linesChartHistorySize, linesDataX)
         axs2[i].set_ylim(0, 1)
         axs2[i].set_yticklabels([0.0])
         axs2[i].set_xlim(-1, 99)
         axs2[i].title.set_text(names[i])
-        # axs2[i].set_xlim(0, 100)
-        # axs2[i].fill_between(range(-100, 100, 1), [0.5] * 100, [0] * 100)
         emotion_chart_list.append(new_emotion_chart)
 
     # linesPlotHappy.ylim(0, 1)
