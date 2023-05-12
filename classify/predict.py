@@ -133,7 +133,6 @@ def run(
         dta_list = prob.tolist()
         max_index = dta_list.index(max(dta_list))
         max_name = names[max_index]
-        # frameTime = (timer.now() - start).total_seconds()
         sumTime[max_name] += 1
         pieValues = list(sumTime.values())
         pieKeys = list(sumTime.keys())
@@ -200,24 +199,6 @@ def run(
         lines_chart_upd(prob)
         pie_chart(prob)
         update_plots()
-
-    # fig2, ax2 = plt.subplots()
-    # xa = [3, 5, 8]
-    # ya = [9, 8, 4]
-    # ln, = ax2.plot(xa, ya, '-')
-    #
-    # def update(frame):
-    #     global xa, ya
-    #     xa.append(9)
-    #     ya.append(6)
-    #
-    #     ln.set_data(xa, ya)
-    #     fig2.gca().relim()
-    #     fig2.gca().autoscale_view()
-    #     return ln,
-    #
-    # animation = FuncAnimation(fig2, update, interval=2000)
-    # plt.show()
 
     # Dataloader
     bs = 1  # batch_size
