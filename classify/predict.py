@@ -133,13 +133,12 @@ def run(
         dta_list = prob.tolist()
         max_index = dta_list.index(max(dta_list))
         max_name = names[max_index]
-        frameTime = (timer.now() - start).total_seconds()
-        sumTime[max_name] += frameTime
+        # frameTime = (timer.now() - start).total_seconds()
+        sumTime[max_name] += 1
         pieValues = list(sumTime.values())
         pieKeys = list(sumTime.keys())
         axPie.clear()
         axPie.pie(np.array(pieValues), labels=pieKeys)
-        fig.canvas.draw_idle()
 
     def lines_chart_upd(prob):
         frameTime = (timer.now() - start).total_seconds()
@@ -161,6 +160,7 @@ def run(
     def update_plots():
         fig.canvas.draw()
         fig.canvas.flush_events()
+        fig.canvas.draw_idle()
 
     plt.ion()
 
@@ -189,7 +189,7 @@ def run(
         axs2[i].title.set_text(names[i])
         emotion_chart_list.append(new_emotion_chart)
 
-    # linesPlotHappy.ylim(0, 1)
+    # global pie chart
 
     pieValues = list(sumTime.values())
     pieKeys = list(sumTime.keys())
