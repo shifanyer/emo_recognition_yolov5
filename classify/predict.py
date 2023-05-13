@@ -123,13 +123,13 @@ def run(
     timer = datetime.datetime
     start = timer.now()
 
-    def show_result_bar_chart_emotions_realtime(result_list, prob):
+    def bar_chart_upd(result_list, prob):
         data_array = prob.tolist()
         bar_y = np.array(data_array)
         for rect, h in zip(barPlot, bar_y):
             rect.set_height(h)
 
-    def pie_chart(prob):
+    def pie_chart_upd(prob):
         dta_list = prob.tolist()
         max_index = dta_list.index(max(dta_list))
         max_name = names[max_index]
@@ -156,6 +156,20 @@ def run(
             for i in range(len(names)):
                 linesDirtyDataY[i].append(data_array[i])
 
+    def radar_chart_upd(prob):
+        dta_list = prob.tolist()
+        max_index = dta_list.index(max(dta_list))
+        max_name = names[max_index]
+        sumTime[max_name] += 1
+        radar_values = list(sumTime.values())
+        radar_values_percent = list(map(lambda x: x / sum(radar_values), radar_values))
+        radar_values_percent = [*radar_values_percent, radar_values_percent[0]]
+        ax_radar.clear()
+        radar_loc = np.linspace(start=0, stop=2 * np.pi, num=len(radar_values_percent))
+        ax_radar.plot(radar_loc, radar_values_percent, label='Эмоциональная гексограмма')
+        radar_lines, radar_labels = ax_radar.set_thetagrids(np.degrees(radar_loc), labels=radar_names)
+        ax_radar.set_title('Эмоциональная гексограмма')
+
     def update_plots():
         fig.canvas.draw()
         fig.canvas.flush_events()
@@ -164,10 +178,12 @@ def run(
     plt.ion()
 
     # create plots
+
     fig, axs = plt.subplots(2)
     axBar = axs[0]
     axPie = axs[1]
 
+    # bar chart
     x = 0.5 + np.arange(len(names))
     y = np.random.uniform(0, 1, len(names))
     width = 1
@@ -175,10 +191,14 @@ def run(
     axBar.set_xticks(np.add(x, 0))
     axBar.set_xticklabels(names.values())
 
+    # global pie chart
+    pieValues = list(sumTime.values())
+    pieKeys = list(sumTime.keys())
+    axPie.pie(np.array(pieValues), labels=pieKeys)
+
     # lines chart create
     fig2, axs2 = plt.subplots(len(names), sharex=True)
     emotion_chart_list = []
-
     fig2.tight_layout()
     for i in range(len(names)):
         new_emotion_chart, = axs2[i].plot([0] * linesChartHistorySize, linesDataX)
@@ -188,16 +208,23 @@ def run(
         axs2[i].title.set_text(names[i])
         emotion_chart_list.append(new_emotion_chart)
 
-    # global pie chart
-
-    pieValues = list(sumTime.values())
-    pieKeys = list(sumTime.keys())
-    axPie.pie(np.array(pieValues), labels=pieKeys)
+    # radar chart create
+    fig3, ax_radar = plt.subplots(subplot_kw={'projection': 'polar'})
+    radar_names = list(names.values())
+    radar_names = [*radar_names, radar_names[0]]
+    radar_values = list(sumTime.values())
+    radar_values = [*radar_values, radar_values[0]]
+    radar_loc = np.linspace(start=0, stop=2 * np.pi, num=len(radar_values))
+    ax_radar.plot(radar_loc, radar_values, label='Restaurant 1')
+    radar_lines, radar_labels = ax_radar.set_thetagrids(np.degrees(radar_loc), labels=radar_names)
+    ax_radar.set_title('Restaurant comparison')
+    # radar_chart.plot(radar_loc, radar_values, label='Restaurant 1')
 
     def show_result(result_list, prob):
-        show_result_bar_chart_emotions_realtime(result_list, prob)
+        bar_chart_upd(result_list, prob)
         lines_chart_upd(prob)
-        pie_chart(prob)
+        pie_chart_upd(prob)
+        radar_chart_upd(prob)
         update_plots()
 
     # Dataloader

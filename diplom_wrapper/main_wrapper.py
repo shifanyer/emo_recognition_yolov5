@@ -5,7 +5,7 @@ from classify.predict import custom_main, get_root
 ROOT = get_root()
 
 if __name__ == "__main__":
-    weights = 'runs_new\exp12\weights\last.pt'
+    weights = 'runs_new\exp29\weights\last.pt'
     source = 'data/images/video2.mp4'
     # source = 'data/images/video.mp4'
     parser = argparse.ArgumentParser()
