@@ -117,7 +117,8 @@ def run(
     lines_dirty_data_y = [[0] * lines_chart_history_size for i in range(len(names))]
 
     lines_data_x = [*range(-lines_chart_history_size, 0, 1)]
-    sum_time = {names[i]: 1.0 for i in range(0, len(names), 1)}
+    sum_time_global = {names[i]: 1.0 for i in range(0, len(names), 1)}
+    emotions_map_time_list = []
 
     # Current time
     timer = datetime.datetime
@@ -133,9 +134,9 @@ def run(
         dta_list = prob.tolist()
         max_index = dta_list.index(max(dta_list))
         max_name = names[max_index]
-        sum_time[max_name] += 1
-        pie_values = list(sum_time.values())
-        pie_keys = list(sum_time.keys())
+        sum_time_global[max_name] += 1
+        pie_values = list(sum_time_global.values())
+        pie_keys = list(sum_time_global.keys())
         axPie.clear()
         axPie.pie(np.array(pie_values), labels=pie_keys)
 
@@ -160,8 +161,8 @@ def run(
         dta_list = prob.tolist()
         max_index = dta_list.index(max(dta_list))
         max_name = names[max_index]
-        sum_time[max_name] += 1
-        radar_values = list(sum_time.values())
+        sum_time_global[max_name] += 1
+        radar_values = list(sum_time_global.values())
         radar_values_percent = list(map(lambda x: x / sum(radar_values), radar_values))
         radar_values_percent = [*radar_values_percent, radar_values_percent[0]]
         ax_radar.clear()
@@ -192,8 +193,8 @@ def run(
     axBar.set_xticklabels(names.values())
 
     # global pie chart
-    pieValues = list(sum_time.values())
-    pieKeys = list(sum_time.keys())
+    pieValues = list(sum_time_global.values())
+    pieKeys = list(sum_time_global.keys())
     axPie.pie(np.array(pieValues), labels=pieKeys)
 
     # lines chart create
@@ -212,14 +213,18 @@ def run(
     fig3, ax_radar = plt.subplots(subplot_kw={'projection': 'polar'})
     radar_names = list(names.values())
     radar_names = [*radar_names, radar_names[0]]
-    radar_values = list(sum_time.values())
+    radar_values = list(sum_time_global.values())
     radar_values = [*radar_values, radar_values[0]]
     radar_loc = np.linspace(start=0, stop=2 * np.pi, num=len(radar_values))
     ax_radar.plot(radar_loc, radar_values, label='Restaurant 1')
     radar_lines, radar_labels = ax_radar.set_thetagrids(np.degrees(radar_loc), labels=radar_names)
     ax_radar.set_title('Restaurant comparison')
 
-    # radar_chart.plot(radar_loc, radar_values, label='Restaurant 1')
+    def upd_data_maps(prob):
+        dta_list = prob.tolist()
+        max_index = dta_list.index(max(dta_list))
+        max_name = names[max_index]
+        sum_time_global[max_name] += 1
 
     def show_result(result_list, prob):
         bar_chart_upd(result_list, prob)
