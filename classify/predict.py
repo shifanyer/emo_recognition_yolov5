@@ -111,13 +111,13 @@ def run(
     # Create plots
     matplotlib.use("TkAgg")
 
-    linesChartHistorySize = 1000
+    lines_chart_history_size = 1000
 
-    linesDataY = [[0] * linesChartHistorySize for i in range(len(names))]
-    linesDirtyDataY = [[0] * linesChartHistorySize for i in range(len(names))]
+    lines_data_y = [[0] * lines_chart_history_size for i in range(len(names))]
+    lines_dirty_data_y = [[0] * lines_chart_history_size for i in range(len(names))]
 
-    linesDataX = [*range(-linesChartHistorySize, 0, 1)]
-    sumTime = {names[i]: 1.0 for i in range(0, len(names), 1)}
+    lines_data_x = [*range(-lines_chart_history_size, 0, 1)]
+    sum_time = {names[i]: 1.0 for i in range(0, len(names), 1)}
 
     # Current time
     timer = datetime.datetime
@@ -133,35 +133,35 @@ def run(
         dta_list = prob.tolist()
         max_index = dta_list.index(max(dta_list))
         max_name = names[max_index]
-        sumTime[max_name] += 1
-        pieValues = list(sumTime.values())
-        pieKeys = list(sumTime.keys())
+        sum_time[max_name] += 1
+        pie_values = list(sum_time.values())
+        pie_keys = list(sum_time.keys())
         axPie.clear()
-        axPie.pie(np.array(pieValues), labels=pieKeys)
+        axPie.pie(np.array(pie_values), labels=pie_keys)
 
     def lines_chart_upd(prob):
-        frameTime = (timer.now() - start).total_seconds()
+        frame_time = (timer.now() - start).total_seconds()
         data_array = prob.tolist()
-        if (frameTime - linesDataX[-1] >= 1):
-            linesDataX.append(math.trunc(frameTime))
+        if frame_time - lines_data_x[-1] >= 1:
+            lines_data_x.append(math.trunc(frame_time))
             for i in range(len(names)):
-                mean_value = average_in_list(linesDirtyDataY[i])
-                linesDataY[i].append(mean_value)
-                linesDirtyDataY[i] = [mean_value]
+                mean_value = average_in_list(lines_dirty_data_y[i])
+                lines_data_y[i].append(mean_value)
+                lines_dirty_data_y[i] = [mean_value]
                 axs2[i].set_yticklabels([math.trunc(mean_value * 100)])
-                new_ls = linesDataY[i][-linesChartHistorySize:]
+                new_ls = lines_data_y[i][-lines_chart_history_size:]
                 emotion_chart_list[i].set_ydata(new_ls)
-                emotion_chart_list[i].set_xdata(linesDataX[-linesChartHistorySize:])
+                emotion_chart_list[i].set_xdata(lines_data_x[-lines_chart_history_size:])
         else:
             for i in range(len(names)):
-                linesDirtyDataY[i].append(data_array[i])
+                lines_dirty_data_y[i].append(data_array[i])
 
     def radar_chart_upd(prob):
         dta_list = prob.tolist()
         max_index = dta_list.index(max(dta_list))
         max_name = names[max_index]
-        sumTime[max_name] += 1
-        radar_values = list(sumTime.values())
+        sum_time[max_name] += 1
+        radar_values = list(sum_time.values())
         radar_values_percent = list(map(lambda x: x / sum(radar_values), radar_values))
         radar_values_percent = [*radar_values_percent, radar_values_percent[0]]
         ax_radar.clear()
@@ -192,8 +192,8 @@ def run(
     axBar.set_xticklabels(names.values())
 
     # global pie chart
-    pieValues = list(sumTime.values())
-    pieKeys = list(sumTime.keys())
+    pieValues = list(sum_time.values())
+    pieKeys = list(sum_time.keys())
     axPie.pie(np.array(pieValues), labels=pieKeys)
 
     # lines chart create
@@ -201,7 +201,7 @@ def run(
     emotion_chart_list = []
     fig2.tight_layout()
     for i in range(len(names)):
-        new_emotion_chart, = axs2[i].plot([0] * linesChartHistorySize, linesDataX)
+        new_emotion_chart, = axs2[i].plot([0] * lines_chart_history_size, lines_data_x)
         axs2[i].set_ylim(0, 1)
         axs2[i].set_yticklabels([0.0])
         axs2[i].set_xlim(-1, 99)
@@ -212,12 +212,13 @@ def run(
     fig3, ax_radar = plt.subplots(subplot_kw={'projection': 'polar'})
     radar_names = list(names.values())
     radar_names = [*radar_names, radar_names[0]]
-    radar_values = list(sumTime.values())
+    radar_values = list(sum_time.values())
     radar_values = [*radar_values, radar_values[0]]
     radar_loc = np.linspace(start=0, stop=2 * np.pi, num=len(radar_values))
     ax_radar.plot(radar_loc, radar_values, label='Restaurant 1')
     radar_lines, radar_labels = ax_radar.set_thetagrids(np.degrees(radar_loc), labels=radar_names)
     ax_radar.set_title('Restaurant comparison')
+
     # radar_chart.plot(radar_loc, radar_values, label='Restaurant 1')
 
     def show_result(result_list, prob):
