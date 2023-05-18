@@ -5,8 +5,8 @@ from classify.predict import custom_main, get_root
 ROOT = get_root()
 
 if __name__ == "__main__":
-    weights = 'runs_new\exp29\weights\last.pt'
-    source = 'data/images/video2.mp4'
+    weights = 'runs_new/exp80/weights/best.pt'
+    source = 'data/images/wow.mp4'
     # source = 'data/images/video.mp4'
     parser = argparse.ArgumentParser()
     parser.add_argument('--weights', nargs='+', type=str, default=ROOT / weights, help='model path(s)')
@@ -29,6 +29,8 @@ if __name__ == "__main__":
     opt = parser.parse_args()
     opt.save_txt = True
     opt.view_img = False
+    opt.nosave = True
+    # opt.vid_stride = False
     opt.imgsz *= 2 if len(opt.imgsz) == 1 else 1  # expand
     # print_args(vars(opt))
     custom_main(opt)

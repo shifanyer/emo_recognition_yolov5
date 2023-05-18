@@ -227,6 +227,7 @@ def run(
         emotion_chart_list.append(new_emotion_chart)
 
     # radar chart create
+
     fig3, ax_radars = plt.subplots(2, subplot_kw={'projection': 'polar'})
     fig3.tight_layout()
     radar_names = list(names.values())
