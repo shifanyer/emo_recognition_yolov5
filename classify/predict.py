@@ -70,7 +70,7 @@ last_5_min_radar_chart_name = 'Эмоциональная гексограмма
 
 
 @smart_inference_mode()
-def run(
+def run_prediction(
         weights=ROOT / 'yolov5s-cls.pt',  # model.pt path(s)
         source=ROOT / 'data/images',  # file/dir/URL/glob/screen/0(webcam)
         data=ROOT / 'data/coco128.yaml',  # dataset.yaml path
@@ -227,7 +227,6 @@ def run(
         emotion_chart_list.append(new_emotion_chart)
 
     # radar chart create
-
     fig3, ax_radars = plt.subplots(2, subplot_kw={'projection': 'polar'})
     fig3.tight_layout()
     radar_names = list(names.values())
@@ -256,7 +255,7 @@ def run(
         last_time_element[max_name] += 1
         emotions_map_time_list.append(last_time_element)
 
-    def show_result(result_list, prob):
+    def upd_charts(result_list, prob):
         upd_data_maps(prob)
         bar_chart_upd(prob)
         lines_chart_upd(prob)
@@ -313,7 +312,7 @@ def run(
 
             # Print results
             top5i = prob.argsort(0, descending=True)[:5].tolist()  # top 5 indices
-            show_result(prob.argsort(0, descending=True).tolist(), prob)
+            upd_charts(prob.argsort(0, descending=True).tolist(), prob)
             s += f"{', '.join(f'{names[j]} {prob[j]:.2f}' for j in top5i)}, "
 
             text_prestring = '' if dataset.mode == 'image' else (str(frame) + ";")
@@ -395,12 +394,12 @@ def parse_opt():
 
 def main(opt):
     check_requirements(exclude=('tensorboard', 'thop'))
-    run(**vars(opt))
+    run_prediction(**vars(opt))
 
 
 def custom_main(opt):
     check_requirements(exclude=('tensorboard', 'thop'))
-    run(**vars(opt))
+    run_prediction(**vars(opt))
 
 
 if __name__ == "__main__":

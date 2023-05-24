@@ -5,8 +5,8 @@ from classify.predict import custom_main, get_root
 ROOT = get_root()
 
 if __name__ == "__main__":
-    weights = 'runs_new/exp80/weights/best.pt'
-    source = 'data/images/wow.mp4'
+    weights = 'runs_new/exp64/weights/best.pt'
+    source = 'data/images/friends/Yarik/output1.mp4'
     # source = 'data/images/video.mp4'
     parser = argparse.ArgumentParser()
     parser.add_argument('--weights', nargs='+', type=str, default=ROOT / weights, help='model path(s)')
