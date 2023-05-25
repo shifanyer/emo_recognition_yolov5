@@ -2,6 +2,7 @@
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QHBoxLayout, QMessageBox
 from diplom_wrapper.main_wrapper import run_video_prediction
 
+
 # создаем класс для нашего окна
 class Window(QWidget):
     def __init__(self):
@@ -22,19 +23,20 @@ class Window(QWidget):
         # устанавливаем лэйаут для окна
         self.setLayout(self.layout)
         # связываем функции с сигналами clicked кнопок
-        self.button1.clicked.connect(self.camera_prediction)
-        self.button2.clicked.connect(self.video_prediction)
-        self.button3.clicked.connect(self.data_prediction)
+        self.button1.clicked.connect(self.run_camera)
+        self.button2.clicked.connect(self.run_video)
+        self.button3.clicked.connect(self.handle_file)
 
     # определяем функции для обработки
-    def camera_prediction(self):
+    def run_camera(self):
         run_video_prediction()
 
-    def video_prediction(self):
+    def run_video(self):
         run_video_prediction()
 
-    def data_prediction(self):
+    def handle_file(self):
         run_video_prediction()
+
 
 # создаем экземпляр приложения
 app = QApplication([])
@@ -44,6 +46,3 @@ window = Window()
 window.show()
 # запускаем цикл обработки событий приложения
 app.exec_()
-
-
-
