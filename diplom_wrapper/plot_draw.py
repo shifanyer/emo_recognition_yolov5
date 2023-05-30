@@ -1,6 +1,6 @@
 # импортируем необходимые модули
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QHBoxLayout, QMessageBox
-from diplom_wrapper.main_wrapper import run_video_prediction
+from diplom_wrapper.main_wrapper import run_video_prediction, run_camera_prediction, run_file_prediction
 
 
 # создаем класс для нашего окна
@@ -29,13 +29,13 @@ class Window(QWidget):
 
     # определяем функции для обработки
     def run_camera(self):
-        run_video_prediction()
+        run_camera_prediction()
 
     def run_video(self):
         run_video_prediction()
 
     def handle_file(self):
-        run_video_prediction()
+        run_file_prediction()
 
 
 # создаем экземпляр приложения

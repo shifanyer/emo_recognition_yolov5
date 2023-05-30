@@ -114,6 +114,7 @@ def run_prediction(
     # Create plots
     matplotlib.use("TkAgg")
 
+    advice_message = ""
     lines_chart_history_size = 1000
 
     lines_data_y = [[0] * lines_chart_history_size for i in range(len(names))]
@@ -196,10 +197,10 @@ def run_prediction(
     plt.ion()
 
     # create plots
-
     fig, axs = plt.subplots(2)
     axBar = axs[0]
     axPie = axs[1]
+    fig.text(0.4, 0.05, "Добавьте красного освещения\nСблизьте экспонаты\nВыключите музыку в зале")
 
     # bar chart
     x = 0.5 + np.arange(len(names))
